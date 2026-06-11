@@ -1,0 +1,16 @@
+.env
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+*.egg-info/
+.DS_Store
+*.csv
+*.xlsx
+*.xls
+.idea/
+.claude/
+CLAUDE.MD
+*.txt
+!requirements.txt
