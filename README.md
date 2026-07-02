@@ -58,6 +58,19 @@ streamlit run app.py
 
 Upload a CSV/Excel file in the sidebar and start asking questions.
 
+## Run with Docker
+
+No Python or venv needed, just Docker and a filled-in `.env` file:
+
+```bash
+docker build -t data-analysis-copilot .
+docker run --env-file .env -p 8501:8501 data-analysis-copilot
+```
+
+Then open `http://localhost:8501` in your browser.
+
+The API keys are passed in at runtime via `--env-file`; they are never baked into the image (`.env` is excluded by `.dockerignore`).
+
 ## Example questions
 
 - *"Show me monthly sales trend over the 3 years"*
@@ -105,6 +118,8 @@ flowchart LR
 │   ├── code_executor.py    # E2B sandbox wrapper + local exec fallback
 │   └── data_loader.py      # CSV/Excel loading, profiling, question suggestions
 ├── requirements.txt
+├── Dockerfile              # Container build (see Run with Docker)
+├── .dockerignore           # Keeps secrets and local files out of the image
 └── .env.example            # Template for API keys (copy to .env)
 ```
 

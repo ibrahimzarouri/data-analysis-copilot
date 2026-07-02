@@ -1,0 +1,24 @@
+# Secrets must never end up inside the image
+.env
+
+# Local development clutter
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.git/
+.gitignore
+.idea/
+.claude/
+CLAUDE.MD
+
+# Local data files
+*.csv
+*.xlsx
+*.xls
+*.txt
+!requirements.txt
+
+# Docs not needed at runtime
+README.md
