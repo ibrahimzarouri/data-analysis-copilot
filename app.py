@@ -83,7 +83,7 @@ with st.sidebar:
             st.rerun()
 
     st.divider()
-    st.caption(f"Model: `{os.getenv('MODEL', 'qwen3-coder-30b-a3b-instruct')}`")
+    st.caption(f"Model: `{os.getenv('MODEL', 'qwen3-coder-next')}`")
     if _USE_E2B and st.session_state.sandbox:
         st.caption("Execution: E2B cloud sandbox")
     elif _USE_E2B:

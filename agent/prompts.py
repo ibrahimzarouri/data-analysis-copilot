@@ -23,10 +23,14 @@ plt.tight_layout()
 ```
 Do NOT call plt.show(). Do NOT assign to `result` for charts.
 
-### When to return a TABLE (user says: show me, list, top N, compare, group by, summarize)
-Compute and assign to `result`:
+### When to return a TABLE (user says: show me, list, top N, first/last rows, compare, group by, summarize)
+Compute and assign to a variable named `result` — this is REQUIRED, the UI only displays
+DataFrames assigned to `result`. Never print() a DataFrame.
 ```python
 result = df.groupby('category')['sales'].sum().reset_index()
+```
+```python
+result = df.head(10)  # "show me the first 10 rows"
 ```
 
 ### When to print a VALUE (single number or short text)

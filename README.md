@@ -47,7 +47,7 @@ cp .env.example .env
 |----------|----------|-------------|
 | `API_KEY` | Yes | API key for the LLM endpoint (OpenAI-compatible) |
 | `BASE_URL` | Optional | LLM endpoint URL (default: `https://chat-ai.academiccloud.de/v1`) |
-| `MODEL` | Optional | Model name (default: `qwen3-coder-30b-a3b-instruct`) |
+| `MODEL` | Optional | Model name (default: `qwen3-coder-next`) |
 | `E2B_API_KEY` | Optional | [E2B](https://e2b.dev) key for sandboxed code execution. Without it, code runs locally (see [Security](#security)) |
 
 ### 3. Run

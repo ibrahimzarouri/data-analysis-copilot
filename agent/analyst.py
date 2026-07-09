@@ -37,7 +37,7 @@ class DataAnalystAgent:
             api_key=os.getenv("API_KEY"),
             base_url=os.getenv("BASE_URL", "https://chat-ai.academiccloud.de/v1"),
         )
-        self.model = os.getenv("MODEL", "qwen3-coder-30b-a3b-instruct")
+        self.model = os.getenv("MODEL", "qwen3-coder-next")
 
     def _system(self) -> str:
         return SYSTEM_PROMPT.format(
