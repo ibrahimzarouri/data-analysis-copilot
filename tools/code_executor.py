@@ -20,9 +20,9 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-df = pd.read_csv('/home/user/data.csv', parse_dates=True, infer_datetime_format=True)
+df = pd.read_csv('/home/user/data.csv')
 for col in df.columns:
-    if df[col].dtype == 'object':
+    if not (pd.api.types.is_numeric_dtype(df[col]) or pd.api.types.is_datetime64_any_dtype(df[col])):
         try:
             df[col] = pd.to_datetime(df[col])
         except Exception:
@@ -52,14 +52,29 @@ except Exception:
 
 
 class E2BSandbox:
+    _TIMEOUT = 600  # seconds of inactivity before E2B kills the sandbox
+
     def __init__(self, df: pd.DataFrame):
+        self._df = df
+        self._start()
+
+    def _start(self):
         from e2b_code_interpreter import Sandbox as _Sandbox
-        self._sbx = _Sandbox.create(timeout=600)
-        self._sbx.files.write("/home/user/data.csv", df.to_csv(index=False))
+        self._sbx = _Sandbox.create(timeout=self._TIMEOUT)
+        self._sbx.files.write("/home/user/data.csv", self._df.to_csv(index=False))
         self._sbx.run_code(_SANDBOX_SETUP)
 
     def run(self, code: str) -> dict:
-        execution = self._sbx.run_code(code + "\n" + _CAPTURE)
+        from e2b.exceptions import SandboxException
+
+        try:
+            # Reset the inactivity timer so the sandbox survives long chats
+            self._sbx.set_timeout(self._TIMEOUT)
+            execution = self._sbx.run_code(code + "\n" + _CAPTURE)
+        except SandboxException:
+            # Sandbox expired while idle — spin up a fresh one and retry once
+            self._start()
+            execution = self._sbx.run_code(code + "\n" + _CAPTURE)
 
         result = {
             "output": "\n".join(execution.logs.stdout),

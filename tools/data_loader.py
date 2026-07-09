@@ -30,10 +30,12 @@ def load_data(uploaded_file) -> tuple[Optional[pd.DataFrame], dict]:
 
 
 def _try_parse_dates(df: pd.DataFrame) -> pd.DataFrame:
-    for col in df.select_dtypes(include="object").columns:
+    for col in df.columns:
+        if pd.api.types.is_numeric_dtype(df[col]) or pd.api.types.is_datetime64_any_dtype(df[col]):
+            continue
         if any(kw in col.lower() for kw in ("date", "time", "created", "updated", "timestamp")):
             try:
-                df[col] = pd.to_datetime(df[col], infer_datetime_format=True)
+                df[col] = pd.to_datetime(df[col])
             except Exception:
                 pass
     return df
@@ -41,24 +43,25 @@ def _try_parse_dates(df: pd.DataFrame) -> pd.DataFrame:
 
 def _build_info(df: pd.DataFrame) -> dict:
     lines = []
+    numeric_cols, categorical_cols, datetime_cols = [], [], []
+
     for col in df.columns:
-        dtype = str(df[col].dtype)
-        n_null = int(df[col].isna().sum())
-        n_unique = int(df[col].nunique())
+        s = df[col]
+        n_null = int(s.isna().sum())
+        n_unique = int(s.nunique())
 
-        if df[col].dtype == "object" or str(df[col].dtype) == "category":
-            samples = df[col].dropna().unique()[:5].tolist()
-            lines.append(f"  - {col} (text, {n_unique} unique, {n_null} nulls) e.g. {samples}")
-        elif "datetime" in dtype:
-            lines.append(f"  - {col} (datetime, {n_null} nulls) {df[col].min()} → {df[col].max()}")
-        else:
+        if pd.api.types.is_datetime64_any_dtype(s):
+            datetime_cols.append(col)
+            lines.append(f"  - {col} (datetime, {n_null} nulls) {s.min()} → {s.max()}")
+        elif pd.api.types.is_numeric_dtype(s) and not pd.api.types.is_bool_dtype(s):
+            numeric_cols.append(col)
             lines.append(
-                f"  - {col} (numeric, min={df[col].min():.4g}, max={df[col].max():.4g}, {n_null} nulls)"
+                f"  - {col} (numeric, min={s.min():.4g}, max={s.max():.4g}, {n_null} nulls)"
             )
-
-    numeric_cols = df.select_dtypes(include="number").columns.tolist()
-    categorical_cols = df.select_dtypes(include=["object", "category"]).columns.tolist()
-    datetime_cols = df.select_dtypes(include="datetime").columns.tolist()
+        else:
+            categorical_cols.append(col)
+            samples = s.dropna().unique()[:5].tolist()
+            lines.append(f"  - {col} (text, {n_unique} unique, {n_null} nulls) e.g. {samples}")
 
     return {
         "rows": len(df),
